@@ -1,0 +1,15 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    <ul>
+    {% for book in books %}
+        <li>
+        <h5>{{ book.title }}
+            <small class="text-muted">{{book.author}}</small>
+        </h5>
+        <p>{{book.description}}</p>
+
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
