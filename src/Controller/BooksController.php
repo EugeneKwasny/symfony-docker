@@ -21,6 +21,12 @@ class BooksController extends AbstractController
         
     }
 
+    #[Route('/', name: 'app_home')]
+    public function homepage()
+    {
+        return $this->redirectToRoute('app_books_list');
+    }
+    
     #[Route('/index', name: 'app_books_index')]
     public function index(Request $request): Response
     {
