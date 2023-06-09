@@ -75,7 +75,7 @@ class BooksController extends AbstractController
 
             if($form->isSubmitted() && $form->isValid())
             {
-                $booksImported = $this->booksImporterService->importFromFile($form['attachment']->getData(), BooksUploaderType::ALLOWED_MIME_TYPES);
+                $booksImported = $this->booksImporterService->importFromFile($form['attachment']->getData());
 
                 $this->addFlash(
                     ($booksImported > 0) ? 'success' : 'danger', 

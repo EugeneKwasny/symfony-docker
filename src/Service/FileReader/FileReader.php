@@ -10,20 +10,21 @@ use Symfony\Component\HttpFoundation\Response;
 class FileReader
 {
     /**
+     * @param UploadedFile $file
+     * @param FileReaderInterface[] $fileReaderExtensions
+     * 
      * @return BookData[]
      */
-    public function readFromFile(UploadedFile $file, array $allowedMimeTypes): array
+    public function readFromFile(UploadedFile $file, array $fileReaderExtensions): array
     {   
-        switch($file->getClientMimeType()){
-            case $allowedMimeTypes['csv']:
-                return $this->read($file, new CsvFileReader());
-            case $allowedMimeTypes['json']:
-                return $this->read($file, new JsonFileReader());
-            case  $allowedMimeTypes['yaml']:
-                return $this->read($file, new YamlFileReader());
-            default:
-                throw new CommonException('Unknown MIME type. Allowed file extensions: '.implode(', ', array_keys($allowedMimeTypes)), Response::HTTP_OK);
-        }  
+        $extensionType = array_key_exists($file->getClientMimeType(), $fileReaderExtensions);
+
+        if(!$extensionType){
+            throw new CommonException('Unknown MIME type. Allowed file extensions: '.implode(', ', array_keys($fileReaderExtensions)), Response::HTTP_OK);
+        }
+
+        return $this->read($file, new $fileReaderExtensions[$file->getClientMimeType()]);
+
     }
     /**
      * @return BookData[]
