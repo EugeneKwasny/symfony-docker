@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Book;
+use App\Form\BooksUploaderType;
 use App\Form\BookType;
 use App\Repository\BookRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -57,6 +59,116 @@ class BooksController extends AbstractController
     {
         return $this->render('book/list.html.twig', [
             'books' => $this->bookRepository->findAll()
+        ]);
+    }
+
+    #[Route('/upload', name:'app_books_upload')]
+    public function upload(Request $request)
+    {
+        $allowedMimeTypes = BooksUploaderType::ALLOWED_MIME_TYPES;
+
+        $form = $this->createForm(BooksUploaderType::class);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid())
+        {
+            $file = $form['attachment']->getData();
+
+            $fileContents  = file_get_contents($file->getPathname());
+
+            switch($file->getClientMimeType()){
+                case $allowedMimeTypes['csv']:
+
+                    if (($handle = fopen($file->getPathname(), "r")) !== FALSE) {
+                        $counter= 0;
+                        while (($data = fgetcsv($handle, null, ';')) !== FALSE) {
+                            if($counter === 0){
+                                $counter++;
+                                continue;
+                            }
+                            
+                            $book = (new Book())
+                                    ->setTitle($data[0])
+                                    ->setAuthor($data[1])
+                                    ->setDescription($data[2])
+                            ;
+
+                            $this->entityManager->persist($book);
+                            $this->entityManager->flush();
+                            $counter++;
+                        }
+                        fclose($handle);
+ 
+                        $this->addFlash(
+                            ($counter> 0) ? 'success' : 'danger',
+                            'Books imported: '.--$counter
+                        );
+            
+                    }
+
+                break;
+                case $allowedMimeTypes['json']:
+                    $books = json_decode($fileContents);
+        
+                    $counter = 0;
+                    foreach($books as $book){
+                        $book = (new Book())
+                            ->setTitle($book->title)
+                            ->setAuthor($book->author)
+                            ->setDescription($book->description)
+                        ;
+
+                        $this->entityManager->persist($book);
+                        $this->entityManager->flush();
+                        $counter++;
+                     
+                    }
+
+                    $this->addFlash(
+                        ($counter > 0) ? 'success' : 'danger',
+                        'Books imported: '.$counter
+                    );
+        
+                break;
+
+                case  $allowedMimeTypes['yaml']:
+                    $books =  Yaml::parse($fileContents);
+
+                   $counter = 0;
+                   foreach($books as $bookData){
+                        $bookObjectData =  (object) $bookData;
+                        $book = (new Book())
+                           ->setTitle($bookObjectData->title)
+                           ->setAuthor($bookObjectData->author)
+                           ->setDescription($bookObjectData->description)
+                        ;
+
+                       $this->entityManager->persist($book);
+                       $this->entityManager->flush();
+                       $counter++;
+                    
+                   }
+
+                   $this->addFlash(
+                       ($counter > 0) ? 'success' : 'danger',
+                       'Books imported: '.$counter
+                   );
+       
+                break;
+                default:
+                    $this->addFlash(
+                        'danger',
+                        'Unknown file extension. Allowed file types: '.implode(', ', $allowedMimeTypes)
+                    );
+            
+            }
+
+            return $this->redirectToRoute('app_books_upload');
+        }
+
+        return $this->render('book/upload.html.twig', [
+            'form' => $form
         ]);
     }
 }
