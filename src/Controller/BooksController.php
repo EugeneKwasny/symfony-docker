@@ -77,6 +77,9 @@ class BooksController extends AbstractController
 
             $fileContents  = file_get_contents($file->getPathname());
 
+            $flashType = 'danger';
+            $flashMessage = 'Unknown file extension. Allowed file types: '.implode(', ', $allowedMimeTypes);
+
             switch($file->getClientMimeType()){
                 case $allowedMimeTypes['csv']:
 
@@ -100,10 +103,8 @@ class BooksController extends AbstractController
                         }
                         fclose($handle);
  
-                        $this->addFlash(
-                            ($counter> 0) ? 'success' : 'danger',
-                            'Books imported: '.--$counter
-                        );
+                        $flashType = ($counter> 0) ? 'success' : 'danger';
+                        $flashMessage = 'Books imported: '.--$counter;
             
                     }
 
@@ -125,10 +126,8 @@ class BooksController extends AbstractController
                      
                     }
 
-                    $this->addFlash(
-                        ($counter > 0) ? 'success' : 'danger',
-                        'Books imported: '.$counter
-                    );
+                    $flashType = ($counter > 0) ? 'success' : 'danger';
+                    $flashMessage = 'Books imported: '.$counter;
         
                 break;
 
@@ -150,20 +149,15 @@ class BooksController extends AbstractController
                     
                    }
 
-                   $this->addFlash(
-                       ($counter > 0) ? 'success' : 'danger',
-                       'Books imported: '.$counter
-                   );
+                    $flashType = ($counter > 0) ? 'success' : 'danger';
+                    $flashMessage = 'Books imported: '.$counter;
        
-                break;
-                default:
-                    $this->addFlash(
-                        'danger',
-                        'Unknown file extension. Allowed file types: '.implode(', ', $allowedMimeTypes)
-                    );
-            
+                break;            
             }
-
+            $this->addFlash(
+                $flashType,
+                $flashMessage
+            );
             return $this->redirectToRoute('app_books_upload');
         }
 
