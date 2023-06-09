@@ -6,8 +6,8 @@ use App\Entity\Book;
 use App\Form\BooksUploaderType;
 use App\Form\BookType;
 use App\Repository\BookRepository;
+use App\Service\BooksImporterService;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Yaml\Yaml;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +17,8 @@ class BooksController extends AbstractController
 {
     public function __construct(
        private  EntityManagerInterface $entityManager,
-       private  BookRepository $bookRepository
+       private  BookRepository $bookRepository,
+       private BooksImporterService $booksImporterService
     )
     {
         
@@ -65,98 +66,20 @@ class BooksController extends AbstractController
     #[Route('/upload', name:'app_books_upload')]
     public function upload(Request $request)
     {
-        $allowedMimeTypes = BooksUploaderType::ALLOWED_MIME_TYPES;
-
         $form = $this->createForm(BooksUploaderType::class);
 
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid())
         {
-            $file = $form['attachment']->getData();
+            $flash = $this->booksImporterService->importFromFile(
+                $form['attachment']->getData(), 
+                BooksUploaderType::ALLOWED_MIME_TYPES
+            );
 
-            $fileContents  = file_get_contents($file->getPathname());
-
-            $flashType = 'danger';
-            $flashMessage = 'Unknown file extension. Allowed file types: '.implode(', ', $allowedMimeTypes);
-
-            switch($file->getClientMimeType()){
-                case $allowedMimeTypes['csv']:
-
-                    if (($handle = fopen($file->getPathname(), "r")) !== FALSE) {
-                        $counter= 0;
-                        while (($data = fgetcsv($handle, null, ';')) !== FALSE) {
-                            if($counter === 0){
-                                $counter++;
-                                continue;
-                            }
-                            
-                            $book = (new Book())
-                                    ->setTitle($data[0])
-                                    ->setAuthor($data[1])
-                                    ->setDescription($data[2])
-                            ;
-
-                            $this->entityManager->persist($book);
-                            $this->entityManager->flush();
-                            $counter++;
-                        }
-                        fclose($handle);
- 
-                        $flashType = ($counter> 0) ? 'success' : 'danger';
-                        $flashMessage = 'Books imported: '.--$counter;
-            
-                    }
-
-                break;
-                case $allowedMimeTypes['json']:
-                    $books = json_decode($fileContents);
-        
-                    $counter = 0;
-                    foreach($books as $book){
-                        $book = (new Book())
-                            ->setTitle($book->title)
-                            ->setAuthor($book->author)
-                            ->setDescription($book->description)
-                        ;
-
-                        $this->entityManager->persist($book);
-                        $this->entityManager->flush();
-                        $counter++;
-                     
-                    }
-
-                    $flashType = ($counter > 0) ? 'success' : 'danger';
-                    $flashMessage = 'Books imported: '.$counter;
-        
-                break;
-
-                case  $allowedMimeTypes['yaml']:
-                    $books =  Yaml::parse($fileContents);
-
-                   $counter = 0;
-                   foreach($books as $bookData){
-                        $bookObjectData =  (object) $bookData;
-                        $book = (new Book())
-                           ->setTitle($bookObjectData->title)
-                           ->setAuthor($bookObjectData->author)
-                           ->setDescription($bookObjectData->description)
-                        ;
-
-                       $this->entityManager->persist($book);
-                       $this->entityManager->flush();
-                       $counter++;
-                    
-                   }
-
-                    $flashType = ($counter > 0) ? 'success' : 'danger';
-                    $flashMessage = 'Books imported: '.$counter;
-       
-                break;            
-            }
             $this->addFlash(
-                $flashType,
-                $flashMessage
+                $flash['type'],
+                $flash['message']
             );
             return $this->redirectToRoute('app_books_upload');
         }
