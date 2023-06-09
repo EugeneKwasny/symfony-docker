@@ -5,8 +5,10 @@ namespace App\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Book;
 use App\Model\FlashData;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Yaml\Yaml;
+use App\Model\BookData;
 
 class BooksImporterService
 {
@@ -25,6 +27,9 @@ class BooksImporterService
         $flashType = 'danger';
         $flashMessage = 'Unknown file extension. Allowed file types: '.implode(', ', $allowedMimeTypes);
 
+
+        $books = new ArrayCollection();
+
         switch($file->getClientMimeType()){
             case $allowedMimeTypes['csv']:
 
@@ -35,15 +40,12 @@ class BooksImporterService
                             $counter++;
                             continue;
                         }
-                        
-                        $book = (new Book())
-                                ->setTitle($data[0])
-                                ->setAuthor($data[1])
-                                ->setDescription($data[2])
-                        ;
+                        $this->saveToDb(new BookData(
+                            $data[0], 
+                            $data[1], 
+                            $data[2]
+                        ));
 
-                        $this->entityManager->persist($book);
-                        $this->entityManager->flush();
                         $counter++;
                     }
                     fclose($handle);
@@ -59,16 +61,12 @@ class BooksImporterService
     
                 $counter = 0;
                 foreach($books as $book){
-                    $book = (new Book())
-                        ->setTitle($book->title)
-                        ->setAuthor($book->author)
-                        ->setDescription($book->description)
-                    ;
-
-                    $this->entityManager->persist($book);
-                    $this->entityManager->flush();
+                    $this->saveToDb(new BookData(
+                        $book->title, 
+                        $book->author, 
+                        $book->description
+                    ));
                     $counter++;
-                 
                 }
 
                 $flashType = ($counter > 0) ? 'success' : 'danger';
@@ -79,27 +77,36 @@ class BooksImporterService
             case  $allowedMimeTypes['yaml']:
                 $books =  Yaml::parse($fileContents);
 
-               $counter = 0;
-               foreach($books as $bookData){
-                    $bookObjectData =  (object) $bookData;
-                    $book = (new Book())
-                       ->setTitle($bookObjectData->title)
-                       ->setAuthor($bookObjectData->author)
-                       ->setDescription($bookObjectData->description)
-                    ;
-
-                   $this->entityManager->persist($book);
-                   $this->entityManager->flush();
-                   $counter++;
-                
-               }
+                $counter = 0;
+                foreach($books as $bookData){
+                    $this->saveToDb
+                        (new BookData(
+                            $bookData['title'], 
+                            $bookData['author'], 
+                            $bookData['description']
+                    ));
+                    $counter++;  
+                }
 
                 $flashType = ($counter > 0) ? 'success' : 'danger';
                 $flashMessage = 'Books imported: '.$counter;
    
             break;            
-        }      
+        }   
         
         return new FlashData($flashType,  $flashMessage);
+    }
+
+
+    private function saveToDb(BookData $bookData): void
+    {
+        $book = (new Book())
+                    ->setTitle($bookData->getTitle())
+                    ->setAuthor($bookData->getAuthor())
+                    ->setDescription($bookData->getDescription())
+        ;
+
+        $this->entityManager->persist($book);
+        $this->entityManager->flush();
     }
 }
