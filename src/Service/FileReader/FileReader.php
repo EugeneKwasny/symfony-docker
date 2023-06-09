@@ -22,7 +22,7 @@ class FileReader
             case  $allowedMimeTypes['yaml']:
                 return $this->read($file, new YamlFileReader());
             default:
-                throw new CommonException('Unknown file extension. Allowed file types: '.implode(', ', $allowedMimeTypes), Response::HTTP_OK);
+                throw new CommonException('Unknown MIME type. Allowed file extensions: '.implode(', ', array_keys($allowedMimeTypes)), Response::HTTP_OK);
         }  
     }
     /**
