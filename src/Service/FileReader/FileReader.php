@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 class FileReader
 {
     /**
-     * @return null|BookData[]
+     * @return BookData[]
      */
-    public function readFromFile(UploadedFile $file, array $allowedMimeTypes): null|array
+    public function readFromFile(UploadedFile $file, array $allowedMimeTypes): array
     {   
         switch($file->getClientMimeType()){
             case $allowedMimeTypes['csv']:
