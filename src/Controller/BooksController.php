@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Book;
+use App\Exception\CommonException;
 use App\Form\BooksUploaderType;
 use App\Form\BookType;
 use App\Repository\BookRepository;
@@ -66,26 +67,34 @@ class BooksController extends AbstractController
     #[Route('/upload', name:'app_books_upload')]
     public function upload(Request $request)
     {
-        $form = $this->createForm(BooksUploaderType::class);
 
-        $form->handleRequest($request);
+        try{
+            $form = $this->createForm(BooksUploaderType::class);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $flash = $this->booksImporterService->importFromFile(
-                $form['attachment']->getData(), 
-                BooksUploaderType::ALLOWED_MIME_TYPES
-            );
+            $form->handleRequest($request);
 
+            if($form->isSubmitted() && $form->isValid())
+            {
+                $booksImported = $this->booksImporterService->importFromFile($form['attachment']->getData(), BooksUploaderType::ALLOWED_MIME_TYPES);
+
+                $this->addFlash(
+                    ($booksImported > 0) ? 'success' : 'danger', 
+                    'Books imported: '.$booksImported
+                );
+
+                return $this->redirectToRoute('app_books_upload');
+            }
+
+            return $this->render('book/upload.html.twig', [
+                'form' => $form
+            ]);
+
+        }catch(CommonException $exception){
             $this->addFlash(
-                $flash->getType(),
-                $flash->getMessage()
+                'danger',
+                $exception->getMessage()
             );
             return $this->redirectToRoute('app_books_upload');
         }
-
-        return $this->render('book/upload.html.twig', [
-            'form' => $form
-        ]);
     }
 }

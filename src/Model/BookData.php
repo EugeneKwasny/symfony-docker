@@ -7,8 +7,8 @@ class BookData
 
     public function __construct(
         private string $title,
-        private ?string $description = null,
-        private string $author
+        private string $author,
+        private ?string $description = null
     )
     {
         
