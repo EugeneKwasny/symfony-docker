@@ -4,6 +4,7 @@ namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Book;
+use App\Model\FlashData;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Yaml\Yaml;
 
@@ -16,7 +17,7 @@ class BooksImporterService
         
     }
 
-    public function importFromFile(UploadedFile $file, array $allowedMimeTypes): array
+    public function importFromFile(UploadedFile $file, array $allowedMimeTypes): FlashData
     {
 
         $fileContents  = file_get_contents($file->getPathname());
@@ -99,9 +100,6 @@ class BooksImporterService
             break;            
         }      
         
-        return [
-            'type' => $flashType,
-            'message' => $flashMessage
-        ];
+        return new FlashData($flashType,  $flashMessage);
     }
 }

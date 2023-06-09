@@ -78,8 +78,8 @@ class BooksController extends AbstractController
             );
 
             $this->addFlash(
-                $flash['type'],
-                $flash['message']
+                $flash->getType(),
+                $flash->getMessage()
             );
             return $this->redirectToRoute('app_books_upload');
         }
