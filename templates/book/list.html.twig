@@ -10,6 +10,9 @@
             </div>
         </div>
     {% endfor %}
-    {{pagerfanta(pager)}}
+
+    {% if pager.count > pager.maxPerPage %}
+        {{ pagerfanta(pager) }}
+    {% endif %}
 
 {% endblock %}
