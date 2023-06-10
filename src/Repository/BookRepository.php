@@ -46,7 +46,7 @@ class BookRepository extends ServiceEntityRepository
    public function createfindAllQuueryBuilder(): QueryBuilder
    {
        return $this->createQueryBuilder('b')
-           ->orderBy('b.id', 'ASC')
+           ->orderBy('b.id', 'DESC')
        ;
    }
 
