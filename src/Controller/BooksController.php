@@ -9,6 +9,8 @@ use App\Form\BookType;
 use App\Repository\BookRepository;
 use App\Service\BooksImporterService;
 use Doctrine\ORM\EntityManagerInterface;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -56,11 +58,17 @@ class BooksController extends AbstractController
         ]);
     }
 
-    #[Route('/list', name: 'app_books_list')]
-    public function list()
+    #[Route('/list/{page<\d+>}', name: 'app_books_list')]
+    public function list(int $page = 1)
     {
+        $queryBuilder = $this->bookRepository->createfindAllQuueryBuilder();
+
+        $pager = new Pagerfanta(new QueryAdapter($queryBuilder));
+        $pager->setMaxPerPage(10);
+        $pager->setCurrentPage($page);
+
         return $this->render('book/list.html.twig', [
-            'books' => $this->bookRepository->findAll()
+            'pager' => $pager,
         ]);
     }
 

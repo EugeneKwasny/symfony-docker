@@ -1,4 +1,7 @@
 {
+    "babdev/pagerfanta-bundle": {
+        "version": "v3.8.0"
+    },
     "doctrine/doctrine-bundle": {
         "version": "2.10",
         "recipe": {
