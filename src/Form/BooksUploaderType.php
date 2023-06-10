@@ -10,6 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Asset\Package;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+
 
 class BooksUploaderType extends AbstractType
 {
@@ -17,10 +20,12 @@ class BooksUploaderType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $package = new Package(new EmptyVersionStrategy());
+
         $builder
             ->add('attachment', FileType::class, [
                 'help_html' => true,
-                'help' => 'Allowed MIME types: '. implode(', ', array_keys(self::ALLOWED_MIME_TYPES)).'. Use  <a href="/upload/_testFileSamples.zip">sample files</a> as templates ',
+                'help' => 'Allowed MIME types: '. implode(', ', array_keys(self::ALLOWED_MIME_TYPES)).'. Use  <a href="'.$package->getUrl('/upload/_testFileSamples.zip').'">sample files</a> as templates ',
             ])
             ->add('Import', SubmitType::class, [
                 'attr' => ['class' => 'btn-primary'],
