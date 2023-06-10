@@ -10,6 +10,10 @@
             </div>
         </div>
     {% endfor %}
+    {% if pager.count < 1 %}
+       <h1>No records found</h1> 
+       <p>You may add new items manualy at <a href="/index">Add book</a> page or use <a href="/upload">Books uploader</a> for bulk import.</p>
+    {% endif %}
 
     {% if pager.count > pager.maxPerPage %}
         {{ pagerfanta(pager) }}
