@@ -19,7 +19,8 @@ class BooksUploaderType extends AbstractType
     {
         $builder
             ->add('attachment', FileType::class, [
-                'help' => 'Allowed MIME types: '. implode(', ', array_keys(self::ALLOWED_MIME_TYPES)),
+                'help_html' => true,
+                'help' => 'Allowed MIME types: '. implode(', ', array_keys(self::ALLOWED_MIME_TYPES)).'. Use  <a href="/upload/_testFileSamples.zip">sample files</a> as templates ',
             ])
             ->add('save', SubmitType::class, [
                 'attr' => ['class' => 'btn-primary'],
