@@ -1,6 +1,9 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
+    {% if pager.count > 0 %}
+        <h1 class="mb-5">Book directory</h1>
+    {% endif %}
     {% for book in pager %}
         <div class="card mb-5">
             <div class="card-body">
