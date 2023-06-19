@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Service\FileReader;
+namespace App\Service\FileReader\Types;
 
 use App\Model\BookData;
+use App\Service\FileReader\Types\TypeInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class JsonFileReader implements FileReaderInterface
+class Json implements TypeInterface
 {
     /**
      * @return BookData[]

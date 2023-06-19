@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Service\FileReader;
+namespace App\Service\FileReader\Types;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Model\BookData;
 
-class CsvFileReader implements FileReaderInterface
+class Csv implements TypeInterface
 {   
     /**
      * @return BookData[]

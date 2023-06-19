@@ -2,9 +2,9 @@
 
 namespace App\Form;
 
-use App\Service\FileReader\CsvFileReader;
-use App\Service\FileReader\JsonFileReader;
-use App\Service\FileReader\YamlFileReader;
+use App\Service\FileReader\Types\Csv as CsvFileReader;
+use App\Service\FileReader\Types\Json as JsonFileReader;
+use App\Service\FileReader\Types\Yaml as YamlFileReader;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;

@@ -5,13 +5,14 @@ namespace App\Service\FileReader;
 use App\Exception\CommonException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Model\BookData;
+use App\Service\FileReader\Types\TypeInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class FileReader
 {
     /**
      * @param UploadedFile $file
-     * @param FileReaderInterface[] $fileReaderExtensions
+     * @param TypeInterface[] $fileReaderExtensions
      * 
      * @return BookData[]
      */
@@ -29,7 +30,7 @@ class FileReader
     /**
      * @return BookData[]
      */
-    public function read(UploadedFile $file, FileReaderInterface $fileReader): array
+    public function read(UploadedFile $file, TypeInterface $fileReader): array
     {
         return $fileReader->read($file);
     }

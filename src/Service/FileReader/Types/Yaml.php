@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Service\FileReader;
+namespace App\Service\FileReader\Types;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Model\BookData;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Yaml\Yaml as YamlParser;
 
-class YamlFileReader implements FileReaderInterface
+class Yaml implements TypeInterface
 {
     /**
      * @return BookData[]
@@ -15,7 +15,7 @@ class YamlFileReader implements FileReaderInterface
     {
         $books = [];
 
-        $booksFileContents =  Yaml::parse(file_get_contents($file->getPathname()));
+        $booksFileContents =  YamlParser::parse(file_get_contents($file->getPathname()));
 
         foreach($booksFileContents as $bookData){
             $books[]  = new BookData($bookData['title'],  $bookData['author'], $bookData['description']);

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Service\FileReader;
+namespace App\Service\FileReader\Types;
 
 use App\Model\BookData;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-interface FileReaderInterface
+interface TypeInterface
 {
     /**
      * @return BookData[]
