@@ -1,0 +1,25 @@
+{% extends "base.html.twig" %}
+
+{% block body %}
+    {% if pager.count > 0 %}
+        <h1 class="mb-5">Book directory</h1>
+    {% endif %}
+    {% for book in pager %}
+        <div class="card mb-5">
+            <div class="card-body">
+                <h5 class="card-title">{{ book.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{book.author}}</h6>
+                <p class="card-text">{{book.description}}</p>
+            </div>
+        </div>
+    {% endfor %}
+    {% if pager.count < 1 %}
+       <h1>No records found</h1> 
+       <p>You may add new items manualy at <a href="/index">Add book</a> page or use <a href="/upload">Books uploader</a> for bulk import.</p>
+    {% endif %}
+
+    {% if pager.count > pager.maxPerPage %}
+        {{ pagerfanta(pager) }}
+    {% endif %}
+
+{% endblock %}
